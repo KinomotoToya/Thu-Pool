@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>单局限时计时器</title>
+</head>
+
+<style type="text/css">
+    body {
+        background-image:url(background.png);
+        background-repeat:no-repeat;
+        background-size: cover;
+    }
+
+	#gamebutton {
+		border-style: none;
+        text-align: center;
+        margin: 0 auto;
+		width:420px;
+		height:110px;
+        color: #990000;
+        font-size:75px;
+        font-family:Wawati SC;
+        display:block;
+        background-color: transparent;
+        background-image:url(button_bg.png);
+        background-repeat:no-repeat;
+        background-size:100%;
+    }
+
+    #totaltime {
+        text-align: center;
+        margin: 0 auto;
+		width:500px;
+		height:200px;
+        color: #000000;
+        font-size:200px;
+        font-family:Yuanti SC;
+        display:block;
+    }
+
+    #shottime {
+        text-align: center;
+        margin: 0 auto;
+		width:500px;
+		height:210px;
+        color: #000000;
+        font-size:150px;
+        font-family:Yuanti SC;
+        display:block;
+    }
+</style>
+
+<body onload="initialize()" onkeydown="control()" >
+	<div id="totaltime"></div>
+	<div id="shottime"></div>
+	<button id="gamebutton" onclick="frameTimer()">Start</button>
+	<audio id="Ding" src="Ding.mp3" >Your browser does not support the audio tag.</audio>
+	<audio id="Du" src="Du.mp3">Your browser does not support the audio tag.</audio>
+	<audio id="Countdown" src="10sec.mp3" >Your browser does not support the audio tag.</audio>
+
+</body>
+<script type="text/javascript">
+	var Ding = document.getElementById("Ding")
+	var Du = document.getElementById("Du")
+	var Countdown = document.getElementById("Countdown")
+
+	var gamebutton = document.getElementById("gamebutton")
+	var timetext = document.getElementById("totaltime")	
+	var shottext = document.getElementById("shottime")	
+ 	
+	var ConstantTime = 240, ChangeTime = 120, BeforeSec = 15, AfterSec = 10
+	var minute, second, shot, t1, t2
+	var ifCountdown, ifSpace
+
+	function initialize() {
+		minute = Math.floor(ConstantTime/60)
+		second = ConstantTime%60
+		shot = BeforeSec
+		timetext.innerText = time2text(minute,second)
+		shottext.innerText = shot
+		timetext.style.color = "black"
+		shottext.style.color = "black"
+		ifCountdown = false
+		ifSpace = true
+	}
+
+	function frameTimer() {
+		gamebutton.blur()
+		if (gamebutton.innerText == 'Start') {
+			gamebutton.innerText = 'Reset'
+			Du.play()
+			t1 = setTimeout(x, 1000)
+
+		} else {
+			gamebutton.innerText = 'Start'
+			clearTimeout(t1)
+			clearTimeout(t2)
+			initialize()
+		}
+		
+	}
+
+
+	function x() {
+		if (second==0) {
+			minute -= 1
+			second = 59
+		} else {
+			second -= 1
+		}
+
+        timetext.innerText = time2text(minute,second);
+        if(minute==0 && second==0){
+            Du.play()
+            clearTimeout(t2)
+        } else {
+        	if(minute==0 && second==10) {
+        		timetext.style.color = "red"
+				Countdown.play()
+        	}
+	        t1 = setTimeout(x, 1000)
+	    }
+    }
+
+    function y() {
+    	shot -= 1
+   		shottext.innerText = (Array(2).join('0')+shot).slice(-2)
+		if (shot == 0) {
+			ifCountdown = false
+			Du.play()
+		} else {
+			if (shot<5) {
+				shottext.style.color = "red"
+				Ding.play()
+			}
+	        t2 = setTimeout(y, 1000)
+		}
+    }
+
+    function control() {
+    	if(ifSpace) {
+    		if(event.keyCode==32 && gamebutton.innerText == 'Reset' && minute+second>0) {
+    			yy()
+    		}
+    	}
+    }
+
+    function yy() {
+    	ifSpace = false
+		if (ifCountdown) {
+    		ifCountdown = false
+    		clearTimeout(t2)
+		} else {
+			shot = minute*60+second<ChangeTime ? AfterSec : BeforeSec
+			shottext.innerText = (Array(2).join('0')+shot).slice(-2)
+			shottext.style.color = "black"
+    		ifCountdown = true
+			t2 = setTimeout(y, 1000)
+		}
+		ifSpace = true
+    }
+
+
+    function time2text(minute, second) {
+		min = (Array(2).join('0')+minute).slice(-2)
+		sec = (Array(2).join('0')+second).slice(-2)
+		return min+':'+sec
+	}
+
+</script>
+</html>
